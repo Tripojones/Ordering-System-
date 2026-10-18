@@ -1,0 +1,754 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#E4570C">
+<title>Shop Delivery</title>
+<style>
+:root{
+  --ink:#1B2A5C; --ink2:#5A6485; --paper:#F6F6F8; --card:#FFFFFF;
+  --orange:#E4570C; --orange-d:#B94509; --tint:#FFF0E6; --leaf:#1F7A4D; --clay:#C2281D; --line:#E1E4EC;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:#fff;padding-bottom:92px}
+h1,h2,h3{margin:0;line-height:1.15;letter-spacing:-.01em}
+h2{font-size:26px;font-weight:800;margin:6px 0 14px}
+h3{font-size:18px;font-weight:700}
+a{color:var(--ink);font-weight:700}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.muted{color:var(--ink2);font-size:14px}
+main{max-width:720px;margin:0 auto;padding:16px 16px 8px}
+
+/* header */
+.top{background:var(--orange);color:#fff;padding:14px 16px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px;position:sticky;top:0;z-index:20;border-radius:0 0 22px 22px}
+.top .shop{font-size:20px;font-weight:800}
+.top .who{font-size:13px;margin-top:3px;display:flex;gap:8px;align-items:center}
+.pill{background:#fff;color:var(--orange-d);font-weight:800;font-size:12px;padding:1px 9px;border-radius:99px}
+.ghost{background:transparent;border:2px solid #fff;color:#fff;border-radius:12px;padding:8px 12px;cursor:pointer;font-weight:700}
+.dl .lbl{font-size:12px;opacity:.95}
+.addr{background:none;border:0;color:#fff;font-weight:800;font-size:17px;padding:0;text-align:left;max-width:62vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.cartbtn{position:relative;background:#fff;border:0;border-radius:14px;width:48px;height:48px;color:var(--orange);display:grid;place-items:center;cursor:pointer}
+.cartbtn svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cartbtn i{position:absolute;top:-6px;right:-6px;background:var(--ink);color:#fff;border-radius:99px;font-size:12px;font-style:normal;padding:1px 7px;font-weight:800}
+
+/* buttons and fields */
+.btn{background:var(--orange);color:#fff;border:0;border-radius:14px;padding:13px 18px;font-weight:800;font-size:17px;cursor:pointer;min-height:48px}
+.btn:active{background:var(--orange-d)}
+.btn[disabled]{opacity:.5}
+.btn.block{width:100%}
+.btn.line{background:#fff;color:var(--orange-d);border:2px solid var(--orange)}
+.btn.go{background:var(--leaf);color:#fff}
+.btn.bad{background:#fff;color:var(--clay);border:2px solid var(--clay)}
+.btn.sm{padding:8px 14px;min-height:40px;font-size:15px}
+label{display:block;font-weight:700;font-size:14px;margin:12px 0 4px}
+input,select{width:100%;padding:12px;border:2px solid var(--line);border-radius:12px;background:#fff;min-height:48px}
+input:focus,select:focus{border-color:var(--orange);outline:none}
+.row{display:flex;gap:8px;align-items:center}
+.row>*{flex:1}
+.row>.btn{flex:0 0 auto}
+.hint{font-size:13px;color:var(--ink2);margin-top:4px}
+
+/* login */
+.auth{max-width:460px;margin:0 auto;padding:30px 18px}
+.auth .brand{font-weight:800;color:var(--orange-d);font-size:18px;margin-bottom:10px}
+.auth h1{font-size:40px;font-weight:900;color:var(--ink);margin-bottom:10px}
+.auth h1 span{color:var(--orange)}
+.tabs{display:flex;margin:18px 0 6px;border-bottom:2px solid var(--line)}
+.tabs button{flex:1;background:none;border:0;padding:12px;font-weight:700;color:var(--ink2);cursor:pointer;border-bottom:4px solid transparent;margin-bottom:-2px}
+.tabs button.on{color:var(--ink);border-bottom-color:var(--orange)}
+.notice{background:var(--tint);border-left:5px solid var(--orange);padding:10px 12px;margin:12px 0;border-radius:6px}
+
+/* shop home */
+.search{position:relative;margin:2px 0 14px}
+.search input{border-radius:16px;padding:14px 14px 14px 46px;border:1.5px solid var(--line);box-shadow:0 3px 12px rgba(27,42,92,.10)}
+.search svg{position:absolute;left:15px;top:14px;width:20px;height:20px;fill:none;stroke:var(--ink2);stroke-width:2.2;stroke-linecap:round}
+.cats{display:flex;gap:10px;overflow-x:auto;margin:0 -16px 12px;padding:2px 16px 8px;scrollbar-width:none}
+.cats::-webkit-scrollbar{display:none}
+.cat{flex:0 0 88px;background:#fff;border:2px solid var(--line);border-radius:20px;padding:10px 4px;text-align:center;font-weight:700;font-size:13px;cursor:pointer;color:var(--ink)}
+.cat .ic{display:block;font-size:30px;line-height:1.25}
+.cat.on{border-color:var(--orange);background:var(--tint)}
+.grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.pc{position:relative;background:#fff;border:1px solid var(--line);border-radius:20px;padding:16px 10px 12px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
+.circle{width:84px;height:84px;border-radius:50%;background:var(--tint);display:grid;place-items:center;font-size:40px;margin-bottom:4px}
+.pc b{font-size:16px;line-height:1.2}
+.pc .price{color:var(--orange-d);font-weight:800;margin-bottom:4px}
+.heart{position:absolute;top:6px;right:6px;background:none;border:0;padding:8px;cursor:pointer;color:var(--ink2)}
+.heart svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2}
+.heart.on{color:var(--orange)}
+.heart.on svg{fill:currentColor}
+.none{grid-column:1/-1}
+.plist{list-style:none;margin:0;padding:0}
+.plist li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.plist b{font-size:17px}
+.step{display:flex;align-items:center;gap:4px}
+.step button{width:42px;height:42px;border-radius:12px;border:2px solid var(--orange);background:#fff;color:var(--orange-d);font-size:22px;font-weight:800;cursor:pointer;line-height:1}
+.step button:last-child{background:var(--orange);color:#fff}
+.step span{min-width:30px;text-align:center;font-weight:800;font-size:18px}
+#cartbar{position:fixed;left:12px;right:12px;bottom:78px;z-index:15;max-width:696px;margin:0 auto}
+#cartbar .btn{box-shadow:0 6px 18px rgba(228,87,12,.4)}
+
+/* bottom nav */
+nav{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);display:flex;z-index:25;padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border:0;color:var(--ink2);padding:10px 2px 9px;font-weight:700;font-size:12px;cursor:pointer;position:relative;display:flex;flex-direction:column;align-items:center;gap:3px}
+nav svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+nav button.on{color:var(--orange-d)}
+nav button.on svg{stroke:var(--orange)}
+.bdg{position:absolute;top:4px;left:calc(50% + 6px);font-style:normal;background:var(--orange);color:#fff;border-radius:99px;font-size:11px;padding:0 6px;font-weight:800}
+
+/* order tickets */
+.ticket{background:var(--card);border:1px solid var(--line);border-left:8px solid var(--line);border-radius:12px;padding:14px;margin:0 0 14px}
+.ticket.st-new{border-left-color:var(--orange)}
+.ticket.st-assigned,.ticket.st-picked_up{border-left-color:#2B8CA3}
+.ticket.st-delivered{border-left-color:var(--leaf)}
+.ticket.st-cancelled{border-left-color:var(--clay);opacity:.75}
+.thead{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.thead .no{font-size:20px;font-weight:900}
+.items{list-style:none;margin:10px 0;padding:0}
+.items li{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed var(--line)}
+.total{display:flex;justify-content:space-between;font-weight:800;font-size:18px;margin:8px 0}
+.badge{display:inline-block;padding:2px 9px;border-radius:99px;font-size:13px;font-weight:700}
+.badge.ok{background:#DDF1E5;color:var(--leaf)}
+.badge.wait{background:#FFE6D3;color:#8A3A05}
+.cancelled{color:var(--clay);font-weight:800;margin:8px 0}
+.track{list-style:none;display:flex;margin:14px 0 6px;padding:0}
+.track li{flex:1;position:relative;text-align:center;font-size:12px;color:var(--ink2)}
+.track li::before{content:"";position:absolute;top:8px;left:-50%;width:100%;height:4px;background:var(--line)}
+.track li:first-child::before{display:none}
+.track .dot{position:relative;z-index:1;display:block;width:20px;height:20px;border-radius:50%;background:#fff;border:4px solid var(--line);margin:0 auto 5px}
+.track li.done .dot{background:var(--leaf);border-color:var(--leaf)}
+.track li.done::before,.track li.now::before{background:var(--leaf)}
+.track li.now .dot{background:var(--orange);border-color:var(--orange)}
+.track li.now{color:var(--ink);font-weight:800}
+.chips{display:flex;gap:8px;margin:0 0 14px;flex-wrap:wrap}
+.chips button{border:2px solid var(--ink);background:#fff;border-radius:99px;padding:6px 14px;font-weight:700;cursor:pointer}
+.chips button.on{background:var(--ink);color:#fff}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.actions>*{flex:1 1 auto}
+
+/* driver */
+.big{font-size:44px;font-weight:900;line-height:1}
+.pickup{background:var(--ink);color:#fff;border-radius:14px;padding:12px 14px;margin:10px 0;display:flex;align-items:baseline;gap:10px}
+.pickup span{opacity:.9}
+.dest{background:var(--tint);border-radius:12px;padding:10px 12px;margin:8px 0}
+
+/* tables and panels */
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 14px}
+.stats div{flex:1 1 140px;border:1px solid var(--line);background:#fff;padding:10px 12px;border-radius:14px}
+.stats b{display:block;font-size:22px}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line)}
+th,td{padding:10px;text-align:left;border-bottom:1px solid var(--line)}
+th{font-size:13px;color:var(--ink2)}
+td.n,th.n{text-align:right}
+.empty{text-align:center;padding:36px 12px;color:var(--ink2)}
+.empty h3{color:var(--ink);margin-bottom:6px}
+.sect{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:16px}
+.prow{display:grid;grid-template-columns:1fr 110px auto auto;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.prow.off .nm{text-decoration:line-through;opacity:.6}
+
+#toast{position:fixed;left:12px;right:12px;top:12px;z-index:50;max-width:520px;margin:0 auto;padding:12px 14px;border-radius:12px;font-weight:700;background:var(--ink);color:#fff;display:none;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+#toast.ok{background:var(--leaf)}
+#toast.err{background:var(--clay)}
+.setup{max-width:520px;margin:40px auto;padding:0 16px}
+@media (prefers-reduced-motion:no-preference){ #toast{animation:pop .18s ease-out} }
+@keyframes pop{from{transform:translateY(-8px);opacity:0}to{transform:none;opacity:1}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ============ 1. SETTINGS - edit these 5 lines ============ */
+const CONFIG = {
+  SUPABASE_URL: 'https://mgpqufxxlhinvetgusqe.supabase.co',
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ncHF1Znh4bGhpbnZldGd1c3FlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyNDI4NzQsImV4cCI6MjEwNzgxODg3NH0.C8Im3EU4akxOoXPNuRbJPf6WpzIMveL3A6UIuKDO504',
+  SHOP_NAME: 'My Shop',
+  MM_NUMBER: '0999 000 000',      // number customers send Airtel Money / Mpamba to
+  MM_NAME: 'My Shop'              // name shown on that number
+};
+/* ========================================================== */
+
+const S = {
+  user:null, profile:null, view:null, products:[], cart:{}, orders:[], team:[],
+  range:'today', ofilter:'active', authMode:'login', notice:'', pin:null,
+  draft:{}, seen:null, bootedFor:null, sig:'', q:'', cat:'All', favs:[]
+};
+let sb, channel, pollTimer;
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money = n => 'MWK ' + Math.round(Number(n || 0)).toLocaleString('en-US');
+const when = iso => iso ? new Date(iso).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '';
+const STATUS_LABEL = {new:'Received', assigned:'Driver assigned', picked_up:'On the way', delivered:'Delivered', cancelled:'Cancelled'};
+const STEPS = [['new','Received'],['assigned','Driver assigned'],['picked_up','On the way'],['delivered','Delivered']];
+
+let toastTimer;
+function toast(msg, kind){
+  const t = $('#toast'); t.textContent = msg; t.className = kind || ''; t.style.display = 'block';
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.style.display = 'none', kind === 'err' ? 6000 : 3500);
+}
+function beep(){
+  try{
+    const c = new (window.AudioContext || window.webkitAudioContext)();
+    const o = c.createOscillator(), g = c.createGain();
+    o.connect(g); g.connect(c.destination); o.frequency.value = 880;
+    g.gain.setValueAtTime(.25, c.currentTime); g.gain.exponentialRampToValueAtTime(.001, c.currentTime + .6);
+    o.start(); o.stop(c.currentTime + .6);
+    if (navigator.vibrate) navigator.vibrate([200,100,200]);
+  }catch(e){}
+}
+function empty(title, text, btn){
+  return `<div class="empty"><h3>${esc(title)}</h3><p>${esc(text)}</p>${btn || ''}</div>`;
+}
+function getPin(done){
+  if (!navigator.geolocation) return toast('This phone cannot share its location. Type your house number or a landmark instead.', 'err');
+  toast('Finding your location...');
+  navigator.geolocation.getCurrentPosition(
+    p => done(p.coords.latitude, p.coords.longitude, p.coords.accuracy),
+    () => toast('Location is off. Turn on GPS and allow location for this site.', 'err'),
+    {enableHighAccuracy:true, timeout:20000, maximumAge:0}
+  );
+}
+function mapsLink(o){
+  if (o.lat != null && o.lng != null) return `https://www.google.com/maps/dir/?api=1&destination=${o.lat},${o.lng}&travelmode=driving`;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((o.address || '') + ' ' + (o.landmark || ''))}`;
+}
+
+/* ---------- data ---------- */
+async function loadProfile(){
+  let { data } = await sb.from('profiles').select('*').eq('id', S.user.id).maybeSingle();
+  if (!data){
+    const m = S.user.user_metadata || {};
+    const r = await sb.from('profiles').insert({id:S.user.id, email:S.user.email, full_name:m.full_name, national_id:m.national_id, phone:m.phone}).select().maybeSingle();
+    data = r.data;
+  }
+  S.profile = data;
+}
+async function loadProducts(){
+  const { data, error } = await sb.from('products').select('*').order('name');
+  if (error) return toast(error.message, 'err');
+  S.products = data || [];
+}
+async function loadTeam(){
+  const { data } = await sb.from('profiles').select('id,full_name,email,phone,role,created_at').order('full_name');
+  S.team = data || [];
+}
+async function loadOrders(){
+  if (!S.profile) return;
+  const { data, error } = await sb.from('orders').select('*, order_items(*)').order('created_at', {ascending:false}).limit(500);
+  if (error) return;
+  const sig = JSON.stringify((data||[]).map(o => [o.id, o.status, o.driver_id, o.payment_status, (o.order_items||[]).length]));
+  if (sig === S.sig) return;
+  S.sig = sig;
+  const role = S.profile.role, me = S.user.id;
+  if (S.seen){
+    for (const o of data){
+      const was = S.seen[o.id];
+      if (role === 'owner' && was === undefined){ beep(); toast(`New order #${o.order_no} for ${money(o.total)}`, 'ok'); }
+      if (role === 'driver' && o.status === 'assigned' && was !== 'assigned'){ beep(); toast(`New delivery: order #${o.order_no}`, 'ok'); }
+      if (role === 'customer' && was !== undefined && was !== o.status){ toast(`Order #${o.order_no}: ${STATUS_LABEL[o.status]}`, 'ok'); }
+    }
+  }
+  S.seen = Object.fromEntries(data.map(o => [o.id, o.status]));
+  S.orders = data;
+  softRender();
+}
+function subscribe(){
+  if (channel) sb.removeChannel(channel);
+  channel = sb.channel('orders-live').on('postgres_changes', {event:'*', schema:'public', table:'orders'}, () => loadOrders()).subscribe();
+  clearInterval(pollTimer);
+  pollTimer = setInterval(() => { if (!document.hidden) loadOrders(); }, 20000);
+}
+
+/* ---------- cart ---------- */
+const cartLines = () => Object.entries(S.cart).map(([id, qty]) => ({p:S.products.find(p => p.id === id && p.active), qty})).filter(l => l.p && l.qty > 0);
+const cartCount = () => cartLines().reduce((a, l) => a + l.qty, 0);
+const cartTotal = () => cartLines().reduce((a, l) => a + l.qty * Number(l.p.price), 0);
+
+/* ---------- rendering ---------- */
+function render(){
+  const root = $('#app');
+  if (!sb){ root.innerHTML = setupView(); return; }
+  if (!S.user){ root.innerHTML = authView(); return; }
+  if (!S.profile){ root.innerHTML = `<div class="setup"><h2>Setting up your account...</h2><p class="muted">If this stays here, log out and log in again.</p><button class="btn line" data-act="logout">Log out</button></div>`; return; }
+  root.innerHTML = `${header()}<main>${viewHtml()}</main>${nav()}`;
+}
+function softRender(){
+  if (!S.profile) return;
+  if (['shop','favs','cart','account','products','team'].includes(S.view)){ const n = $('#nav'); if (n) n.outerHTML = nav(); }
+  else render();
+}
+const ICO = {
+  shop:'<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+  orders:'<path d="M6 3h12v18H6z"/><path d="M9 8h6M9 12h6M9 16h4"/>',
+  favs:'<path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z"/>',
+  account:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>',
+  products:'<path d="M3 7l9-4 9 4v10l-9 4-9-4z"/><path d="M3 7l9 4 9-4M12 11v10"/>',
+  sales:'<path d="M5 20V10M12 20V4M19 20v-8"/>',
+  team:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>',
+  jobs:'<path d="M3 7l9-4 9 4v10l-9 4-9-4z"/><path d="M3 7l9 4 9-4M12 11v10"/>',
+  done:'<path d="M5 12l5 5 9-10"/>'
+};
+function addrText(){
+  const d = S.draft || {};
+  return d.house || d.landmark || (d.lat != null ? 'My location pin' : 'Add your address');
+}
+function header(){
+  const r = S.profile.role;
+  if (r === 'customer'){
+    const k = cartCount();
+    return `<header class="top"><div class="dl"><div class="lbl">Deliver to</div><button class="addr" data-act="nav" data-v="account">${esc(addrText())} &#9662;</button></div>
+      <button class="cartbtn" data-act="nav" data-v="cart" aria-label="Open cart"><svg viewBox="0 0 24 24"><path d="M3 4h2l2.5 11h10L20 7H6.5"/><circle cx="9" cy="20" r="1.5"/><circle cx="17" cy="20" r="1.5"/></svg><i id="cartcount" style="${k ? '' : 'display:none'}">${k}</i></button></header>`;
+  }
+  return `<header class="top"><div><div class="shop">${esc(CONFIG.SHOP_NAME)}</div><div class="who"><span class="pill">${r === 'owner' ? 'Owner' : 'Driver'}</span>${esc(S.profile.full_name || S.user.email)}</div></div>
+    <button class="ghost" data-act="logout">Log out</button></header>`;
+}
+function nav(){
+  const items = {
+    customer:[['shop','Home'],['orders','Orders'],['favs','Favourites'],['account','Account']],
+    owner:[['orders','Orders'],['products','Items'],['sales','Sales'],['team','Team']],
+    driver:[['jobs','Deliveries'],['done','Done']]
+  }[S.profile.role];
+  return `<nav id="nav">${items.map(([v,l]) => `<button data-act="nav" data-v="${v}" class="${S.view === v ? 'on' : ''}"><svg viewBox="0 0 24 24" aria-hidden="true">${ICO[v]}</svg><span>${l}</span>${badge(v)}</button>`).join('')}</nav>`;
+}
+function badge(v){
+  const r = S.profile.role; let n = 0;
+  if (v === 'cart') n = cartCount();
+  if (r === 'owner' && v === 'orders') n = S.orders.filter(o => o.status === 'new').length;
+  if (r === 'driver' && v === 'jobs') n = S.orders.filter(o => ['assigned','picked_up'].includes(o.status)).length;
+  return n ? `<i class="bdg">${n}</i>` : '';
+}
+function viewHtml(){
+  const v = S.view, r = S.profile.role;
+  if (r === 'customer') return {shop:viewShop, cart:viewCart, orders:viewMyOrders, favs:viewFavs, account:viewAccount}[v]();
+  if (r === 'owner') return {orders:ownerOrders, products:ownerProducts, sales:ownerSales, team:ownerTeam}[v]();
+  return {jobs:driverJobs, done:driverDone}[v]();
+}
+
+/* ---------- setup + auth ---------- */
+function setupView(){
+  return `<div class="setup"><h2>One step left</h2><p>Open <b>index.html</b> in a text editor and paste your Supabase URL and anon key into the <b>CONFIG</b> section at the top of the script.</p></div>`;
+}
+function authView(){
+  const login = S.authMode === 'login';
+  return `<div class="auth">
+    <div class="brand">${esc(CONFIG.SHOP_NAME)}</div>
+    <h1>Order it.<br><span>We bring it.</span></h1>
+    <p class="muted">Everything you need from the shop, delivered to your door.</p>
+    <div class="tabs"><button data-act="authmode" data-v="login" class="${login?'on':''}">Log in</button><button data-act="authmode" data-v="register" class="${login?'':'on'}">Create account</button></div>
+    ${S.notice ? `<div class="notice">${esc(S.notice)}</div>` : ''}
+    ${login ? `
+    <form data-form="login">
+      <label for="e">Email</label><input id="e" name="email" type="email" autocomplete="email" required>
+      <label for="p">Password</label><input id="p" name="password" type="password" autocomplete="current-password" required>
+      <p><button class="btn block" type="submit">Log in</button></p>
+    </form>` : `
+    <form data-form="register">
+      <label for="fn">Full name</label><input id="fn" name="full_name" autocomplete="name" required>
+      <label for="id">National ID number</label><input id="id" name="national_id" required>
+      <div class="hint">Used only to verify you. Drivers never see it.</div>
+      <label for="ph">Phone number</label><input id="ph" name="phone" type="tel" autocomplete="tel" placeholder="0999 123 456" required>
+      <label for="em">Email</label><input id="em" name="email" type="email" autocomplete="email" required>
+      <label for="pw">Password (6 or more characters)</label><input id="pw" name="password" type="password" autocomplete="new-password" minlength="6" required>
+      <label for="hn">House number or area</label><input id="hn" name="house_no" placeholder="e.g. House 24, Area 25">
+      <label for="lm">Landmark nearby</label><input id="lm" name="landmark" placeholder="e.g. Next to the green church">
+      <p><button class="btn line block" type="button" data-act="regpin">Share my location pin</button>
+      <span class="hint" id="pinStatus">${S.pin ? 'Location saved.' : 'Helps the driver find you. You can do this later.'}</span></p>
+      <p><button class="btn block" type="submit">Create account</button></p>
+    </form>`}
+  </div>`;
+}
+
+/* ---------- customer ---------- */
+const ICONS = [['soap','🧼'],['wash','🧼'],['clean','🧽'],['food','🍞'],['bread','🍞'],['grocer','🛒'],['drink','🥤'],['beverage','🥤'],['juice','🥤'],['pharm','💊'],['health','💊'],['medic','💊'],['baby','🍼'],['beauty','💄'],['cosmetic','💄'],['lotion','🧴'],['oil','🫒'],['rice','🍚'],['flour','🌾'],['sugar','🍬'],['snack','🍪'],['egg','🥚'],['milk','🥛'],['meat','🍗'],['fruit','🍎'],['vegetable','🥬'],['stationery','✏️'],['phone','📱']];
+function icon(name){
+  const n = String(name || '').toLowerCase(), f = ICONS.find(([k]) => n.includes(k));
+  return f ? f[1] : '🛍️';
+}
+const cats = () => [...new Set(S.products.filter(p => p.active && p.category).map(p => p.category))].sort();
+function filteredProducts(){
+  const q = (S.q || '').trim().toLowerCase();
+  return S.products.filter(p => p.active && (S.cat === 'All' || p.category === S.cat) && (!q || p.name.toLowerCase().includes(q)));
+}
+function cardsHtml(list){
+  if (!list.length) return `<li class="none">${empty('Nothing found', 'Try another word or pick a different category.')}</li>`;
+  return list.map(p => {
+    const q = S.cart[p.id] || 0, fav = S.favs.includes(p.id);
+    return `<li class="pc">
+      <button class="heart ${fav ? 'on' : ''}" data-act="fav" data-id="${p.id}" aria-label="${fav ? 'Remove from favourites' : 'Add to favourites'}"><svg viewBox="0 0 24 24"><path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z"/></svg></button>
+      <div class="circle" aria-hidden="true">${icon(p.category || p.name)}</div>
+      <b>${esc(p.name)}</b><div class="price">${money(p.price)}</div>
+      ${q ? `<div class="step"><button data-act="dec" data-id="${p.id}" aria-label="Remove one ${esc(p.name)}">&minus;</button><span>${q}</span><button data-act="inc" data-id="${p.id}" aria-label="Add one ${esc(p.name)}">+</button></div>`
+          : `<button class="btn sm" data-act="inc" data-id="${p.id}">Add</button>`}
+    </li>`;
+  }).join('');
+}
+function viewShop(){
+  if (!S.products.some(p => p.active)) return empty('No items yet', 'The shop is adding items. Check back soon.');
+  const cs = cats();
+  return `<div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+    <input type="search" data-search placeholder="Search items" value="${esc(S.q)}" aria-label="Search items"></div>
+    ${cs.length ? `<div class="cats">${['All', ...cs].map(c => `<button class="cat ${S.cat === c ? 'on' : ''}" data-act="cat" data-v="${esc(c)}"><span class="ic">${c === 'All' ? '🛒' : icon(c)}</span>${esc(c)}</button>`).join('')}</div>` : ''}
+    <ul class="grid" id="grid">${cardsHtml(filteredProducts())}</ul>
+    <div id="cartbar">${cartBar()}</div><div style="height:70px"></div>`;
+}
+function viewFavs(){
+  const list = S.products.filter(p => p.active && S.favs.includes(p.id));
+  if (!list.length) return empty('No favourites yet', 'Tap the heart on an item to keep it here for quick re-ordering.', `<button class="btn" data-act="nav" data-v="shop">Browse items</button>`);
+  return `<h2>Favourites</h2><ul class="grid" id="grid">${cardsHtml(list)}</ul><div id="cartbar">${cartBar()}</div><div style="height:70px"></div>`;
+}
+function cartBar(){
+  const n = cartCount();
+  return n ? `<button class="btn block" data-act="nav" data-v="cart">View cart: ${n} item${n > 1 ? 's' : ''}, ${money(cartTotal())}</button>` : '';
+}
+function updateCartUI(){
+  const g = $('#grid');
+  if (g) g.innerHTML = S.view === 'favs' ? cardsHtml(S.products.filter(p => p.active && S.favs.includes(p.id))) : cardsHtml(filteredProducts());
+  const b = $('#cartbar'); if (b) b.innerHTML = cartBar();
+  const n = $('#nav'); if (n) n.outerHTML = nav();
+  const c = $('#cartcount'); if (c){ const k = cartCount(); c.textContent = k; c.style.display = k ? '' : 'none'; }
+}
+function viewCart(){
+  const lines = cartLines();
+  if (!lines.length) return empty('Your cart is empty', 'Add something from the shop.', `<button class="btn" data-act="nav" data-v="shop">Go to shop</button>`);
+  const d = S.draft, mm = d.pay === 'mobile_money';
+  return `<h2>Your cart</h2>
+  <ul class="plist">${lines.map(l => `<li><div><b>${esc(l.p.name)}</b><div class="muted">${money(l.p.price)} each</div></div>
+    <div class="step"><button data-act="dec" data-id="${l.p.id}" aria-label="Remove one">&minus;</button><span>${l.qty}</span><button data-act="inc" data-id="${l.p.id}" aria-label="Add one">+</button></div></li>`).join('')}</ul>
+  <div class="total"><span>Total</span><span>${money(cartTotal())}</span></div>
+  <form data-form="checkout" class="sect">
+    <h3>Delivery details</h3>
+    <label for="c-ph">Phone number</label><input id="c-ph" type="tel" data-draft="phone" value="${esc(d.phone)}" required>
+    <label for="c-hn">House number or area</label><input id="c-hn" data-draft="house" value="${esc(d.house)}" placeholder="e.g. House 24, Area 25">
+    <label for="c-lm">Landmark nearby</label><input id="c-lm" data-draft="landmark" value="${esc(d.landmark)}" placeholder="e.g. Next to the green church">
+    <p><button class="btn line block" type="button" data-act="checkpin">Use my current location</button>
+    <span class="hint" id="pinStatus">${d.lat != null ? 'Location pin saved. The driver will be guided to it.' : 'No location pin yet. Add one if your house is hard to find.'}</span></p>
+    <h3 style="margin-top:18px">How will you pay?</h3>
+    <label><input type="radio" name="pay" value="cash" data-pay ${!mm?'checked':''} style="width:auto;min-height:0"> Cash when the driver arrives</label>
+    <label><input type="radio" name="pay" value="mobile_money" data-pay ${mm?'checked':''} style="width:auto;min-height:0"> Airtel Money or Mpamba now</label>
+    ${mm ? `<div class="notice">Send <b>${money(cartTotal())}</b> to <b>${esc(CONFIG.MM_NUMBER)}</b> (${esc(CONFIG.MM_NAME)}), then enter the reference from the confirmation message.
+      <label for="c-ref">Payment reference</label><input id="c-ref" data-draft="ref" value="${esc(d.ref)}" required></div>` : ''}
+    <p><button class="btn block" type="submit">Place order: ${money(cartTotal())}</button></p>
+  </form>`;
+}
+function viewMyOrders(){
+  if (!S.orders.length) return empty('No orders yet', 'When you order, you can follow it here.', `<button class="btn" data-act="nav" data-v="shop">Go to shop</button>`);
+  return `<h2>My orders</h2>${S.orders.map(o => orderCard(o, 'customer')).join('')}`;
+}
+function viewAccount(){
+  const p = S.profile, d = S.draft;
+  return `<h2>My details</h2>
+  <form data-form="account" class="sect">
+    <p class="muted">${esc(p.full_name || '')}<br>${esc(p.email || '')}</p>
+    <label for="a-ph">Phone number</label><input id="a-ph" type="tel" data-draft="phone" value="${esc(d.phone)}" required>
+    <label for="a-hn">House number or area</label><input id="a-hn" data-draft="house" value="${esc(d.house)}">
+    <label for="a-lm">Landmark nearby</label><input id="a-lm" data-draft="landmark" value="${esc(d.landmark)}">
+    <p><button class="btn line block" type="button" data-act="checkpin">Update my location pin</button>
+    <span class="hint" id="pinStatus">${d.lat != null ? 'Location pin saved.' : 'No location pin yet.'}</span></p>
+    <p><button class="btn block" type="submit">Save my details</button></p>
+  </form>
+  <p><button class="btn line block" data-act="logout">Log out</button></p>`;
+}
+
+/* ---------- shared order card ---------- */
+function track(status){
+  if (status === 'cancelled') return `<div class="cancelled">This order was cancelled</div>`;
+  const idx = STEPS.findIndex(s => s[0] === status);
+  return `<ol class="track">${STEPS.map((s,i) => `<li class="${i < idx ? 'done' : i === idx ? 'now' : ''}"><span class="dot"></span>${s[1]}</li>`).join('')}</ol>`;
+}
+function itemsList(o){
+  return `<ul class="items">${(o.order_items || []).map(i => `<li><span>${esc(i.name)}</span><b>&times; ${i.qty}</b></li>`).join('')}</ul>`;
+}
+function payLine(o){
+  const paid = o.payment_status === 'paid';
+  return `<span class="badge ${paid?'ok':'wait'}">${paid?'Paid':'Not paid yet'}</span> <span class="muted">${o.payment_method === 'cash' ? 'Cash on delivery' : 'Mobile money' + (o.payment_ref ? ', ref ' + esc(o.payment_ref) : '')}</span>`;
+}
+function orderCard(o, role){
+  const drivers = S.team.filter(t => t.role === 'driver');
+  const drv = S.team.find(t => t.id === o.driver_id);
+  let who = '', actions = '';
+  if (role === 'owner'){
+    who = `<div><b>${esc(o.customer_name || 'Customer')}</b> <a href="tel:${esc(o.customer_phone)}">${esc(o.customer_phone || '')}</a></div>
+      <div>${esc(o.address || '')}${o.landmark ? `<div class="muted">Near ${esc(o.landmark)}</div>` : ''}
+      <a href="${mapsLink(o)}" target="_blank" rel="noopener">${o.lat != null ? 'View location pin' : 'Search address on map'}</a></div>
+      ${drv ? `<div class="muted">Driver: ${esc(drv.full_name || drv.email)}</div>` : ''}`;
+    if (['new','assigned'].includes(o.status)){
+      actions += drivers.length
+        ? `<div class="row" style="flex-basis:100%"><select id="drv-${o.id}" aria-label="Choose driver"><option value="">Choose driver</option>${drivers.map(d => `<option value="${d.id}" ${d.id === o.driver_id ? 'selected' : ''}>${esc(d.full_name || d.email)}</option>`).join('')}</select>
+           <button class="btn" data-act="assign" data-id="${o.id}">${o.driver_id ? 'Reassign' : 'Send to driver'}</button></div>`
+        : `<div class="muted" style="flex-basis:100%">No drivers yet. Add one in the Team tab.</div>`;
+    }
+    if (o.payment_status === 'pending' && o.status !== 'cancelled') actions += `<button class="btn line sm" data-act="markpaid" data-id="${o.id}">Mark as paid</button>`;
+    if (!['delivered','cancelled'].includes(o.status)) actions += `<button class="btn bad sm" data-act="cancel" data-id="${o.id}">Cancel order</button>`;
+  }
+  return `<article class="ticket st-${o.status}">
+    <div class="thead"><span class="no">#${o.order_no}</span><span class="muted">${when(o.created_at)}</span></div>
+    ${who}${itemsList(o)}
+    <div class="total"><span>Total</span><span>${money(o.total)}</span></div>
+    <div>${payLine(o)}</div>
+    ${track(o.status)}
+    ${actions ? `<div class="actions">${actions}</div>` : ''}
+  </article>`;
+}
+
+/* ---------- owner ---------- */
+function ownerOrders(){
+  const act = o => ['new','assigned','picked_up'].includes(o.status);
+  const list = S.orders.filter(o => S.ofilter === 'active' ? act(o) : S.ofilter === 'delivered' ? o.status === 'delivered' : true);
+  const chip = (v,l) => `<button data-act="ofilter" data-v="${v}" class="${S.ofilter === v ? 'on' : ''}">${l}</button>`;
+  return `<h2>Orders</h2><div class="chips">${chip('active','Open')}${chip('delivered','Delivered')}${chip('all','All')}</div>
+    ${list.length ? list.map(o => orderCard(o, 'owner')).join('') : empty('Nothing here', S.ofilter === 'active' ? 'New orders show up here the moment a customer places them.' : 'No orders in this list.')}`;
+}
+function ownerProducts(){
+  return `<h2>Items for sale</h2>
+  <form data-form="addProduct" class="sect"><h3>Add an item</h3>
+    <label for="pn">Item name</label><input id="pn" name="name" placeholder="e.g. Bar soap 400g" required>
+    <label for="pc">Category</label><input id="pc" name="category" list="catlist" placeholder="e.g. Soap and cleaning"><datalist id="catlist">${cats().map(c => `<option value="${esc(c)}">`).join('')}</datalist>
+    <label for="pp">Price (MWK)</label><input id="pp" name="price" type="number" min="0" step="1" inputmode="numeric" required>
+    <p><button class="btn block" type="submit">Add item</button></p></form>
+  <div class="sect">${S.products.length ? S.products.map(p => `<div class="prow ${p.active?'':'off'}">
+      <span class="nm"><b>${esc(p.name)}</b><div class="muted">${esc(p.category || 'No category')}</div></span>
+      <input type="number" min="0" step="1" inputmode="numeric" id="pr-${p.id}" value="${Number(p.price)}" aria-label="Price of ${esc(p.name)}">
+      <button class="btn sm" data-act="saveprice" data-id="${p.id}">Save</button>
+      <button class="btn line sm" data-act="toggle" data-id="${p.id}">${p.active ? 'Hide' : 'Show'}</button></div>`).join('') : '<p class="muted">No items yet. Add your first one above.</p>'}</div>`;
+}
+function rangeOrders(){
+  const now = new Date();
+  return S.orders.filter(o => {
+    if (o.status === 'cancelled') return false;
+    const t = new Date(o.created_at);
+    if (S.range === 'today') return t.toDateString() === now.toDateString();
+    if (S.range === '7') return now - t <= 7 * 864e5;
+    if (S.range === '30') return now - t <= 30 * 864e5;
+    return true;
+  });
+}
+function salesData(){
+  const os = rangeOrders(), map = new Map();
+  for (const o of os) for (const i of (o.order_items || [])){
+    const r = map.get(i.name) || {qty:0, amt:0}; r.qty += i.qty; r.amt += i.qty * Number(i.price); map.set(i.name, r);
+  }
+  const rows = [...map.entries()].map(([name, r]) => ({name, ...r})).sort((a,b) => b.amt - a.amt);
+  const revenue = os.reduce((a,o) => a + Number(o.total), 0);
+  const paid = os.filter(o => o.payment_status === 'paid').reduce((a,o) => a + Number(o.total), 0);
+  return {os, rows, revenue, paid};
+}
+function ownerSales(){
+  const {os, rows, revenue, paid} = salesData();
+  const opt = (v,l) => `<option value="${v}" ${S.range === v ? 'selected' : ''}>${l}</option>`;
+  return `<h2>Sales</h2>
+  <label for="rg" style="margin-top:0">Period</label>
+  <select id="rg" data-act="range">${opt('today','Today')}${opt('7','Last 7 days')}${opt('30','Last 30 days')}${opt('all','All time')}</select>
+  <div class="stats" style="margin-top:14px"><div>Orders<b>${os.length}</b></div><div>Sold<b>${money(revenue)}</b></div><div>Money received<b>${money(paid)}</b></div><div>Still to collect<b>${money(revenue - paid)}</b></div></div>
+  ${rows.length ? `<table><thead><tr><th>Item</th><th class="n">Qty sold</th><th class="n">Amount</th></tr></thead><tbody>
+    ${rows.map(r => `<tr><td>${esc(r.name)}</td><td class="n">${r.qty}</td><td class="n">${money(r.amt)}</td></tr>`).join('')}</tbody></table>
+    <p><button class="btn line" data-act="csv">Download as spreadsheet</button></p>` : empty('No sales in this period', 'Sold items and amounts will be listed here.')}`;
+}
+function ownerTeam(){
+  const drivers = S.team.filter(t => t.role === 'driver'), customers = S.team.filter(t => t.role === 'customer');
+  return `<h2>Team</h2>
+  <form data-form="addDriver" class="sect"><h3>Add a driver</h3>
+    <p class="muted">The driver first creates an account in this app. Then enter their email here.</p>
+    <label for="de">Driver's email</label><input id="de" name="email" type="email" required>
+    <p><button class="btn block" type="submit">Make driver</button></p></form>
+  <div class="sect"><h3>Drivers (${drivers.length})</h3>${drivers.length ? drivers.map(d => `<div class="prow" style="grid-template-columns:1fr auto">
+    <span><b>${esc(d.full_name || '')}</b><div class="muted">${esc(d.email)}${d.phone ? ', ' + esc(d.phone) : ''}</div></span>
+    <button class="btn bad sm" data-act="removedriver" data-email="${esc(d.email)}">Remove</button></div>`).join('') : '<p class="muted">No drivers yet.</p>'}</div>
+  <div class="sect"><h3>Customers (${customers.length})</h3>${customers.map(c => `<div class="prow" style="grid-template-columns:1fr"><span><b>${esc(c.full_name || '')}</b><div class="muted">${esc(c.phone || '')}</div></span></div>`).join('') || '<p class="muted">No customers yet.</p>'}</div>`;
+}
+
+/* ---------- driver ---------- */
+function driverJobs(){
+  const jobs = S.orders.filter(o => ['assigned','picked_up'].includes(o.status)).reverse();
+  if (!jobs.length) return empty('No deliveries right now', 'When the shop sends you an order, it appears here with a sound.');
+  return `<h2>Deliveries</h2>${jobs.map(o => {
+    const picked = o.status === 'picked_up';
+    return `<article class="ticket st-${o.status}">
+      <div class="thead"><span class="no">Order #${o.order_no}</span><span class="muted">${when(o.created_at)}</span></div>
+      <div class="pickup"><span class="big">${o.item_count}</span><span>item${o.item_count > 1 ? 's' : ''} to pick up at the shop</span></div>
+      ${itemsList(o)}
+      <div class="dest"><b>${esc(o.customer_name || 'Customer')}</b><br>
+        <a href="tel:${esc(o.customer_phone)}">Call ${esc(o.customer_phone || '')}</a>
+        <div>${esc(o.address || '')}</div>${o.landmark ? `<div class="muted">Near ${esc(o.landmark)}</div>` : ''}</div>
+      ${o.payment_method === 'cash' ? `<div class="total"><span>Collect cash</span><span>${money(o.total)}</span></div>` : `<div>${payLine(o)}</div>`}
+      <div class="actions">
+        <a class="btn line" style="text-decoration:none;text-align:center" href="${mapsLink(o)}" target="_blank" rel="noopener">${o.lat != null ? 'Guide me there' : 'Find on map'}</a>
+        ${picked ? `<button class="btn go" data-act="dstatus" data-id="${o.id}" data-s="delivered">Mark delivered</button>`
+                 : `<button class="btn" data-act="dstatus" data-id="${o.id}" data-s="picked_up">I picked up the items</button>`}
+      </div></article>`;
+  }).join('')}`;
+}
+function driverDone(){
+  const list = S.orders.filter(o => o.status === 'delivered');
+  if (!list.length) return empty('Nothing delivered yet', 'Completed deliveries are listed here.');
+  return `<h2>Done</h2>${list.map(o => `<article class="ticket st-delivered"><div class="thead"><span class="no">#${o.order_no}</span><span class="muted">${when(o.delivered_at)}</span></div>
+    <div>${esc(o.customer_name || '')}, ${o.item_count} item${o.item_count > 1 ? 's' : ''}, ${money(o.total)}</div></article>`).join('')}`;
+}
+
+/* ---------- events ---------- */
+const handlers = {
+  fav(el){
+    const id = el.dataset.id, i = S.favs.indexOf(id);
+    if (i >= 0) S.favs.splice(i, 1); else S.favs.push(id);
+    try { localStorage.setItem('favs:' + S.user.id, JSON.stringify(S.favs)); } catch(e){}
+    S.view === 'favs' ? render() : updateCartUI();
+  },
+  cat(el){ S.cat = el.dataset.v; render(); },
+  nav(el){ S.view = el.dataset.v; render(); window.scrollTo(0,0); },
+  authmode(el){ S.authMode = el.dataset.v; S.notice = ''; render(); },
+  async logout(){ await sb.auth.signOut(); },
+  inc(el){ const id = el.dataset.id; S.cart[id] = Math.min(99, (S.cart[id] || 0) + 1); S.view === 'cart' ? render() : updateCartUI(id); },
+  dec(el){ const id = el.dataset.id; S.cart[id] = Math.max(0, (S.cart[id] || 0) - 1); if (!S.cart[id]) delete S.cart[id]; S.view === 'cart' ? render() : updateCartUI(id); },
+  regpin(){ getPin((lat,lng) => { S.pin = {lat,lng}; $('#pinStatus').textContent = 'Location saved.'; toast('Location saved', 'ok'); }); },
+  checkpin(){ getPin((lat,lng,acc) => { S.draft.lat = lat; S.draft.lng = lng; const s = $('#pinStatus'); if (s) s.textContent = `Location pin saved (accurate to about ${Math.round(acc)} m).`; toast('Location saved', 'ok'); }); },
+  ofilter(el){ S.ofilter = el.dataset.v; render(); },
+  async assign(el){
+    const id = el.dataset.id, d = document.getElementById('drv-' + id).value;
+    if (!d) return toast('Choose a driver first', 'err');
+    const { error } = await sb.from('orders').update({driver_id:d, status:'assigned', assigned_at:new Date().toISOString()}).eq('id', id);
+    if (error) return toast(error.message, 'err');
+    toast('Sent to driver', 'ok'); S.sig = ''; loadOrders();
+  },
+  async markpaid(el){
+    const { error } = await sb.from('orders').update({payment_status:'paid'}).eq('id', el.dataset.id);
+    if (error) return toast(error.message, 'err');
+    toast('Marked as paid', 'ok'); S.sig = ''; loadOrders();
+  },
+  async cancel(el){
+    if (!confirm('Cancel this order?')) return;
+    const { error } = await sb.from('orders').update({status:'cancelled'}).eq('id', el.dataset.id);
+    if (error) return toast(error.message, 'err');
+    toast('Order cancelled', 'ok'); S.sig = ''; loadOrders();
+  },
+  async saveprice(el){
+    const v = Number(document.getElementById('pr-' + el.dataset.id).value);
+    if (!(v >= 0)) return toast('Enter a valid price', 'err');
+    const { error } = await sb.from('products').update({price:v}).eq('id', el.dataset.id);
+    if (error) return toast(error.message, 'err');
+    toast('Price saved', 'ok'); await loadProducts(); render();
+  },
+  async toggle(el){
+    const p = S.products.find(x => x.id === el.dataset.id);
+    const { error } = await sb.from('products').update({active:!p.active}).eq('id', p.id);
+    if (error) return toast(error.message, 'err');
+    await loadProducts(); render();
+  },
+  range(el){ S.range = el.value; render(); },
+  csv(){
+    const {rows} = salesData();
+    const csv = 'Item,Quantity sold,Amount (MWK)\n' + rows.map(r => `"${r.name.replace(/"/g,'""')}",${r.qty},${r.amt}`).join('\n');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+    a.download = `sales-${S.range}-${new Date().toISOString().slice(0,10)}.csv`; a.click();
+  },
+  async removedriver(el){
+    if (!confirm('Remove this driver? Their account stays as a customer.')) return;
+    const { error } = await sb.rpc('set_user_role', {p_email:el.dataset.email, p_role:'customer'});
+    if (error) return toast(error.message, 'err');
+    await loadTeam(); render();
+  },
+  async dstatus(el){
+    el.disabled = true;
+    const { error } = await sb.rpc('driver_set_status', {p_order:el.dataset.id, p_status:el.dataset.s});
+    if (error){ el.disabled = false; return toast(error.message, 'err'); }
+    toast(el.dataset.s === 'delivered' ? 'Delivery complete' : 'Pickup confirmed', 'ok'); S.sig = ''; loadOrders();
+  }
+};
+const forms = {
+  async login(f){
+    const v = Object.fromEntries(new FormData(f));
+    const { error } = await sb.auth.signInWithPassword({email:v.email.trim(), password:v.password});
+    if (error) toast(error.message === 'Invalid login credentials' ? 'Wrong email or password' : error.message, 'err');
+  },
+  async register(f){
+    const v = Object.fromEntries(new FormData(f)); const btn = f.querySelector('[type=submit]'); btn.disabled = true;
+    const { data, error } = await sb.auth.signUp({email:v.email.trim(), password:v.password, options:{data:{
+      full_name:v.full_name.trim(), national_id:v.national_id.trim(), phone:v.phone.trim(),
+      house_no:v.house_no.trim(), landmark:v.landmark.trim(), lat:S.pin ? String(S.pin.lat) : '', lng:S.pin ? String(S.pin.lng) : ''}}});
+    btn.disabled = false;
+    if (error) return toast(error.message, 'err');
+    if (!data.session){ S.authMode = 'login'; S.notice = 'Account created. Check your email to confirm it, then log in.'; render(); }
+  },
+  async checkout(f){
+    const d = S.draft, lines = cartLines(), btn = f.querySelector('[type=submit]');
+    if (!d.house && !d.landmark && d.lat == null) return toast('Add your house number, a landmark or your location pin', 'err');
+    if (d.pay === 'mobile_money' && !(d.ref || '').trim()) return toast('Enter the payment reference', 'err');
+    btn.disabled = true;
+    const { error } = await sb.rpc('place_order', {
+      p_items: lines.map(l => ({product_id:l.p.id, qty:l.qty})),
+      p_payment_method: d.pay || 'cash',
+      p_address: d.house || '', p_landmark: d.landmark || '',
+      p_lat: d.lat ?? null, p_lng: d.lng ?? null,
+      p_phone: d.phone, p_payment_ref: d.ref || null });
+    btn.disabled = false;
+    if (error) return toast(error.message, 'err');
+    S.cart = {}; S.draft.ref = ''; S.draft.pay = 'cash'; S.view = 'orders'; S.sig = '';
+    toast('Order placed. The shop has been notified.', 'ok'); await loadOrders(); render();
+  },
+  async account(f){
+    const d = S.draft;
+    const { error } = await sb.from('profiles').update({phone:d.phone, house_no:d.house, landmark:d.landmark, lat:d.lat ?? null, lng:d.lng ?? null}).eq('id', S.user.id);
+    if (error) return toast(error.message, 'err');
+    toast('Details saved', 'ok');
+  },
+  async addProduct(f){
+    const v = Object.fromEntries(new FormData(f));
+    const { error } = await sb.from('products').insert({name:v.name.trim(), price:Number(v.price), category:(v.category || '').trim() || null});
+    if (error) return toast(error.message, 'err');
+    toast('Item added', 'ok'); await loadProducts(); render();
+  },
+  async addDriver(f){
+    const v = Object.fromEntries(new FormData(f));
+    const { error } = await sb.rpc('set_user_role', {p_email:v.email, p_role:'driver'});
+    if (error) return toast(error.message, 'err');
+    toast('Driver added', 'ok'); await loadTeam(); render();
+  }
+};
+document.addEventListener('click', e => { const el = e.target.closest('[data-act]'); if (el && el.tagName !== 'SELECT' && handlers[el.dataset.act]) handlers[el.dataset.act](el); });
+document.addEventListener('change', e => {
+  const el = e.target;
+  if (el.tagName === 'SELECT' && el.dataset.act) return handlers[el.dataset.act](el);
+  if (el.matches('[data-pay]')){ S.draft.pay = el.value; render(); }
+});
+document.addEventListener('input', e => { const k = e.target.dataset && e.target.dataset.draft; if (k) S.draft[k] = e.target.value; });
+document.addEventListener('submit', e => { e.preventDefault(); const f = e.target.dataset.form; if (forms[f]) forms[f](e.target); });
+document.addEventListener('input', e => {
+  if (e.target.matches && e.target.matches('[data-search]')){ S.q = e.target.value; const g = $('#grid'); if (g) g.innerHTML = cardsHtml(filteredProducts()); }
+});
+document.addEventListener('visibilitychange', () => { if (!document.hidden && S.profile) loadOrders(); });
+
+/* ---------- start ---------- */
+async function boot(){
+  await loadProfile();
+  if (!S.profile) return render();
+  const p = S.profile;
+  try { S.favs = JSON.parse(localStorage.getItem('favs:' + S.user.id) || '[]'); } catch(e){ S.favs = []; }
+  S.q = ''; S.cat = 'All';
+  S.view = {customer:'shop', owner:'orders', driver:'jobs'}[p.role];
+  S.draft = {phone:p.phone || '', house:p.house_no || '', landmark:p.landmark || '', lat:p.lat, lng:p.lng, pay:'cash', ref:''};
+  S.seen = null; S.sig = '';
+  await Promise.all([loadProducts(), p.role === 'owner' ? loadTeam() : null, loadOrders()]);
+  subscribe(); render();
+}
+function init(){
+  if (CONFIG.SUPABASE_URL.startsWith('PASTE') || !window.supabase) return render();
+  sb = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+  sb.auth.onAuthStateChange((event, session) => {
+    const u = session ? session.user : null;
+    if (!u){
+      S.user = null; S.profile = null; S.bootedFor = null; S.orders = []; S.cart = {}; S.team = [];
+      if (channel) sb.removeChannel(channel); clearInterval(pollTimer); render(); return;
+    }
+    S.user = u;
+    if (S.bootedFor !== u.id){ S.bootedFor = u.id; setTimeout(boot, 0); }
+  });
+  render();
+}
+init();
+</script>
+</body>
+</html>
