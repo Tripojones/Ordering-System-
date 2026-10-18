@@ -98,6 +98,9 @@ nav button.on{color:var(--orange-d)}
 nav button.on svg{stroke:var(--orange)}
 .bdg{position:absolute;top:4px;left:calc(50% + 6px);font-style:normal;background:var(--orange);color:#fff;border-radius:99px;font-size:11px;padding:0 6px;font-weight:800}
 
+.banner{background:var(--tint);border:2px solid var(--orange);border-radius:16px;padding:12px 14px;margin:0 0 14px;font-weight:700}
+.sumrow{display:flex;justify-content:space-between;padding:3px 0}
+
 /* order tickets */
 .ticket{background:var(--card);border:1px solid var(--line);border-left:8px solid var(--line);border-radius:12px;padding:14px;margin:0 0 14px}
 .ticket.st-new{border-left-color:var(--orange)}
@@ -175,7 +178,7 @@ const CONFIG = {
 const S = {
   user:null, profile:null, view:null, products:[], cart:{}, orders:[], team:[],
   range:'today', ofilter:'active', authMode:'login', notice:'', pin:null,
-  draft:{}, seen:null, bootedFor:null, sig:'', q:'', cat:'All', favs:[]
+  draft:{}, seen:null, bootedFor:null, sig:'', q:'', cat:'All', favs:[], settings:{delivery_fee:0, banner:''}
 };
 let sb, channel, pollTimer;
 
@@ -234,6 +237,10 @@ async function loadProducts(){
   if (error) return toast(error.message, 'err');
   S.products = data || [];
 }
+async function loadSettings(){
+  const { data } = await sb.from('shop_settings').select('*').eq('id', 1).maybeSingle();
+  S.settings = {delivery_fee:Number((data && data.delivery_fee) || 0), banner:(data && data.banner) || ''};
+}
 async function loadTeam(){
   const { data } = await sb.from('profiles').select('id,full_name,email,phone,role,created_at').order('full_name');
   S.team = data || [];
@@ -268,6 +275,8 @@ function subscribe(){
 /* ---------- cart ---------- */
 const cartLines = () => Object.entries(S.cart).map(([id, qty]) => ({p:S.products.find(p => p.id === id && p.active), qty})).filter(l => l.p && l.qty > 0);
 const cartCount = () => cartLines().reduce((a, l) => a + l.qty, 0);
+const deliveryFee = () => Number(S.settings.delivery_fee || 0);
+const grandTotal = () => cartTotal() + deliveryFee();
 const cartTotal = () => cartLines().reduce((a, l) => a + l.qty * Number(l.p.price), 0);
 
 /* ---------- rendering ---------- */
@@ -391,7 +400,7 @@ function cardsHtml(list){
 function viewShop(){
   if (!S.products.some(p => p.active)) return empty('No items yet', 'The shop is adding items. Check back soon.');
   const cs = cats();
-  return `<div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+  return `${S.settings.banner ? `<div class="banner">${esc(S.settings.banner)}</div>` : ''}<div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
     <input type="search" data-search placeholder="Search items" value="${esc(S.q)}" aria-label="Search items"></div>
     ${cs.length ? `<div class="cats">${['All', ...cs].map(c => `<button class="cat ${S.cat === c ? 'on' : ''}" data-act="cat" data-v="${esc(c)}"><span class="ic">${c === 'All' ? '🛒' : icon(c)}</span>${esc(c)}</button>`).join('')}</div>` : ''}
     <ul class="grid" id="grid">${cardsHtml(filteredProducts())}</ul>
@@ -420,7 +429,11 @@ function viewCart(){
   return `<h2>Your cart</h2>
   <ul class="plist">${lines.map(l => `<li><div><b>${esc(l.p.name)}</b><div class="muted">${money(l.p.price)} each</div></div>
     <div class="step"><button data-act="dec" data-id="${l.p.id}" aria-label="Remove one">&minus;</button><span>${l.qty}</span><button data-act="inc" data-id="${l.p.id}" aria-label="Add one">+</button></div></li>`).join('')}</ul>
-  <div class="total"><span>Total</span><span>${money(cartTotal())}</span></div>
+  <div style="margin:10px 0">
+    <div class="sumrow"><span>Items</span><span>${money(cartTotal())}</span></div>
+    <div class="sumrow"><span>Delivery</span><span>${deliveryFee() ? money(deliveryFee()) : 'Free'}</span></div>
+    <div class="total"><span>Total</span><span>${money(grandTotal())}</span></div>
+  </div>
   <form data-form="checkout" class="sect">
     <h3>Delivery details</h3>
     <label for="c-ph">Phone number</label><input id="c-ph" type="tel" data-draft="phone" value="${esc(d.phone)}" required>
@@ -431,9 +444,9 @@ function viewCart(){
     <h3 style="margin-top:18px">How will you pay?</h3>
     <label><input type="radio" name="pay" value="cash" data-pay ${!mm?'checked':''} style="width:auto;min-height:0"> Cash when the driver arrives</label>
     <label><input type="radio" name="pay" value="mobile_money" data-pay ${mm?'checked':''} style="width:auto;min-height:0"> Airtel Money or Mpamba now</label>
-    ${mm ? `<div class="notice">Send <b>${money(cartTotal())}</b> to <b>${esc(CONFIG.MM_NUMBER)}</b> (${esc(CONFIG.MM_NAME)}), then enter the reference from the confirmation message.
+    ${mm ? `<div class="notice">Send <b>${money(grandTotal())}</b> to <b>${esc(CONFIG.MM_NUMBER)}</b> (${esc(CONFIG.MM_NAME)}), then enter the reference from the confirmation message.
       <label for="c-ref">Payment reference</label><input id="c-ref" data-draft="ref" value="${esc(d.ref)}" required></div>` : ''}
-    <p><button class="btn block" type="submit">Place order: ${money(cartTotal())}</button></p>
+    <p><button class="btn block" type="submit">Place order: ${money(grandTotal())}</button></p>
   </form>`;
 }
 function viewMyOrders(){
@@ -486,9 +499,11 @@ function orderCard(o, role){
     if (o.payment_status === 'pending' && o.status !== 'cancelled') actions += `<button class="btn line sm" data-act="markpaid" data-id="${o.id}">Mark as paid</button>`;
     if (!['delivered','cancelled'].includes(o.status)) actions += `<button class="btn bad sm" data-act="cancel" data-id="${o.id}">Cancel order</button>`;
   }
+  if (role === 'customer') actions += `<button class="btn line sm" data-act="reorder" data-id="${o.id}">Order again</button>`;
   return `<article class="ticket st-${o.status}">
     <div class="thead"><span class="no">#${o.order_no}</span><span class="muted">${when(o.created_at)}</span></div>
     ${who}${itemsList(o)}
+    ${Number(o.delivery_fee) > 0 ? `<div class="sumrow muted"><span>Delivery fee</span><span>${money(o.delivery_fee)}</span></div>` : ''}
     <div class="total"><span>Total</span><span>${money(o.total)}</span></div>
     <div>${payLine(o)}</div>
     ${track(o.status)}
@@ -506,6 +521,12 @@ function ownerOrders(){
 }
 function ownerProducts(){
   return `<h2>Items for sale</h2>
+  <form data-form="saveSettings" class="sect"><h3>Shop settings</h3>
+    <label for="sf">Delivery fee (MWK, 0 for free delivery)</label>
+    <input id="sf" name="fee" type="number" min="0" step="1" inputmode="numeric" value="${Number(S.settings.delivery_fee || 0)}">
+    <label for="sb">Message on the home screen (optional)</label>
+    <input id="sb" name="banner" maxlength="140" value="${esc(S.settings.banner || '')}" placeholder="e.g. Orders before 4pm arrive today">
+    <p><button class="btn block" type="submit">Save settings</button></p></form>
   <form data-form="addProduct" class="sect"><h3>Add an item</h3>
     <label for="pn">Item name</label><input id="pn" name="name" placeholder="e.g. Bar soap 400g" required>
     <label for="pc">Category</label><input id="pc" name="category" list="catlist" placeholder="e.g. Soap and cleaning"><datalist id="catlist">${cats().map(c => `<option value="${esc(c)}">`).join('')}</datalist>
@@ -534,17 +555,18 @@ function salesData(){
     const r = map.get(i.name) || {qty:0, amt:0}; r.qty += i.qty; r.amt += i.qty * Number(i.price); map.set(i.name, r);
   }
   const rows = [...map.entries()].map(([name, r]) => ({name, ...r})).sort((a,b) => b.amt - a.amt);
-  const revenue = os.reduce((a,o) => a + Number(o.total), 0);
+  const gross = os.reduce((a,o) => a + Number(o.total), 0);
+  const fees = os.reduce((a,o) => a + Number(o.delivery_fee || 0), 0);
   const paid = os.filter(o => o.payment_status === 'paid').reduce((a,o) => a + Number(o.total), 0);
-  return {os, rows, revenue, paid};
+  return {os, rows, revenue:gross - fees, fees, gross, paid};
 }
 function ownerSales(){
-  const {os, rows, revenue, paid} = salesData();
+  const {os, rows, revenue, fees, gross, paid} = salesData();
   const opt = (v,l) => `<option value="${v}" ${S.range === v ? 'selected' : ''}>${l}</option>`;
   return `<h2>Sales</h2>
   <label for="rg" style="margin-top:0">Period</label>
   <select id="rg" data-act="range">${opt('today','Today')}${opt('7','Last 7 days')}${opt('30','Last 30 days')}${opt('all','All time')}</select>
-  <div class="stats" style="margin-top:14px"><div>Orders<b>${os.length}</b></div><div>Sold<b>${money(revenue)}</b></div><div>Money received<b>${money(paid)}</b></div><div>Still to collect<b>${money(revenue - paid)}</b></div></div>
+  <div class="stats" style="margin-top:14px"><div>Orders<b>${os.length}</b></div><div>Items sold<b>${money(revenue)}</b></div><div>Delivery fees<b>${money(fees)}</b></div><div>Money received<b>${money(paid)}</b></div><div>Still to collect<b>${money(gross - paid)}</b></div></div>
   ${rows.length ? `<table><thead><tr><th>Item</th><th class="n">Qty sold</th><th class="n">Amount</th></tr></thead><tbody>
     ${rows.map(r => `<tr><td>${esc(r.name)}</td><td class="n">${r.qty}</td><td class="n">${money(r.amt)}</td></tr>`).join('')}</tbody></table>
     <p><button class="btn line" data-act="csv">Download as spreadsheet</button></p>` : empty('No sales in this period', 'Sold items and amounts will be listed here.')}`;
@@ -599,6 +621,16 @@ const handlers = {
     S.view === 'favs' ? render() : updateCartUI();
   },
   cat(el){ S.cat = el.dataset.v; render(); },
+  reorder(el){
+    const o = S.orders.find(x => x.id === el.dataset.id); if (!o) return;
+    let missing = 0;
+    for (const i of (o.order_items || [])){
+      const p = S.products.find(x => x.id === i.product_id && x.active);
+      if (p) S.cart[p.id] = Math.min(99, (S.cart[p.id] || 0) + i.qty); else missing++;
+    }
+    toast(missing ? `${missing} item${missing > 1 ? 's are' : ' is'} no longer available` : 'Added to your cart', missing ? 'err' : 'ok');
+    S.view = 'cart'; render(); window.scrollTo(0, 0);
+  },
   nav(el){ S.view = el.dataset.v; render(); window.scrollTo(0,0); },
   authmode(el){ S.authMode = el.dataset.v; S.notice = ''; render(); },
   async logout(){ await sb.auth.signOut(); },
@@ -695,6 +727,14 @@ const forms = {
     if (error) return toast(error.message, 'err');
     toast('Details saved', 'ok');
   },
+  async saveSettings(f){
+    const v = Object.fromEntries(new FormData(f)), fee = Number(v.fee);
+    if (!(fee >= 0)) return toast('Enter a valid delivery fee', 'err');
+    const { error } = await sb.from('shop_settings').upsert({id:1, delivery_fee:fee, banner:(v.banner || '').trim() || null});
+    if (error) return toast(error.message, 'err');
+    S.settings = {delivery_fee:fee, banner:(v.banner || '').trim()};
+    toast('Settings saved', 'ok');
+  },
   async addProduct(f){
     const v = Object.fromEntries(new FormData(f));
     const { error } = await sb.from('products').insert({name:v.name.trim(), price:Number(v.price), category:(v.category || '').trim() || null});
@@ -731,7 +771,7 @@ async function boot(){
   S.view = {customer:'shop', owner:'orders', driver:'jobs'}[p.role];
   S.draft = {phone:p.phone || '', house:p.house_no || '', landmark:p.landmark || '', lat:p.lat, lng:p.lng, pay:'cash', ref:''};
   S.seen = null; S.sig = '';
-  await Promise.all([loadProducts(), p.role === 'owner' ? loadTeam() : null, loadOrders()]);
+  await Promise.all([loadSettings(), loadProducts(), p.role === 'owner' ? loadTeam() : null, loadOrders()]);
   subscribe(); render();
 }
 function init(){
